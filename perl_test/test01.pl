@@ -2,6 +2,7 @@
 
 use warnings;
 #use strict;
+use Data::Dumper;
 
 $var = "str01";
 $num = 123;
@@ -32,3 +33,42 @@ sub multiline_break_enabled() {
 
 print "$ignore_pattern\n";
 print "$cpp_filename_pattern\n";
+
+sub all_sub_classes() {
+  my $attr_re = "\\[\\[[^\\[\\]]+\\]\\]";
+  my $template_specifier_re = "final|private|public|protected";
+  my $template_arguments_re = "<([^<>]*(?:<(?1)>|[^<>])[^<>]*)?>";
+  my $cls_re = "^\\s*(template\\s*$template_arguments_re)?(?:\\s*typedef)?\\s*\\b(class|struct)\\b\\s*([a-zA-Z_]\\w*)\\s*[^{};*()=]*?{";
+  my $cls_filter_re = "";
+
+  my $cache_file = ".cpptree.list"
+  my @matches = ();
+
+  my $multiline_break = ""
+  if (multiline_break_enabled()) {
+    $multiline_break = "--multiline-break";
+  }
+
+  if ((-f $cache_file) && file_newer_than_script($cache_file)) {
+    @matches = map {chomp;
+     $_} qx(cat $cache_file);
+   qx(touch $cache_file);
+  }
+}
+ 
+
+
+my @cls  = shift || die "missing class name";
+my @filter = shift;
+my @verbose = shift;
+my @depth = shift;
+
+
+$filter = ".*" unless (defined($filter) && $filter ne "");
+$verbose = undef if (defined($verbose) && $verbose == 0);
+$depth = 100000 unless defined($depth);
+
+print $filter;
+print $verbose;
+print $depth;
+
